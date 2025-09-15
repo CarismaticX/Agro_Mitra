@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Mic, Send, Bot, User, Leaf, Lightbulb } from "lucide-react";
@@ -9,6 +8,7 @@ import { useState } from "react";
 export function AIAdvisory() {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -18,29 +18,52 @@ export function AIAdvisory() {
     }
   ]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
-    
-    const newMessage = {
+
+    const userMsg = {
       id: messages.length + 1,
-      type: 'user',
+      type: "user",
       content: message,
       timestamp: new Date().toLocaleTimeString(),
     };
-    
-    setMessages([...messages, newMessage]);
+
+    setMessages(prev => [...prev, userMsg]);
     setMessage("");
-    
-    // Simulate AI response
-    setTimeout(() => {
+    setLoading(true);
+
+    try {
+      // ✅ Use full backend URL
+      const aiText = await fetch("http://localhost:5000/api/ai/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userMsg.content }),
+      })
+      .then(res => res.json())
+      .then(data => data.text);
+
       const botResponse = {
         id: messages.length + 2,
-        type: 'bot',
-        content: "Thank you for your question. I understand you're asking about farming practices. For the best results, I'd need to connect to our AI backend service. Please connect to Supabase to enable full AI functionality.",
+        type: "bot",
+        content: aiText,
         timestamp: new Date().toLocaleTimeString(),
       };
+
       setMessages(prev => [...prev, botResponse]);
-    }, 1000);
+    } catch (err) {
+      console.error("AI fetch error:", err);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: messages.length + 2,
+          type: "bot",
+          content: "⚠️ Could not generate response.",
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+    }
+
+    setLoading(false);
   };
 
   const quickQuestions = [
@@ -54,6 +77,7 @@ export function AIAdvisory() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -83,7 +107,6 @@ export function AIAdvisory() {
       {/* Chat Interface */}
       <Card className="flex-1">
         <CardContent className="p-0">
-          {/* Messages */}
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((msg) => (
               <div
@@ -102,17 +125,14 @@ export function AIAdvisory() {
                       </div>
                     )}
                   </div>
-                  <div className={`rounded-lg p-3 ${
-                    msg.type === 'user' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted'
-                  }`}>
+                  <div className={`rounded-lg p-3 ${msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                     <p className="text-sm">{msg.content}</p>
                     <span className="text-xs opacity-70 mt-1 block">{msg.timestamp}</span>
                   </div>
                 </div>
               </div>
             ))}
+            {loading && <p className="text-sm text-muted-foreground italic">AI is typing...</p>}
           </div>
 
           {/* Input Area */}
@@ -123,13 +143,13 @@ export function AIAdvisory() {
               onChange={(e) => setMessage(e.target.value)}
               className="min-h-[80px] resize-none"
               onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
                 }
               }}
             />
-            
+
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -140,7 +160,7 @@ export function AIAdvisory() {
                 <Mic className="h-4 w-4 mr-2" />
                 {isRecording ? "Stop Recording" : "Voice Input"}
               </Button>
-              
+
               <Button onClick={handleSendMessage} className="ml-auto">
                 <Send className="h-4 w-4 mr-2" />
                 Send
@@ -184,7 +204,7 @@ export function AIAdvisory() {
             <p className="text-sm text-muted-foreground">Tailored advice for your specific crops</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <Bot className="h-8 w-8 text-primary mx-auto mb-2" />
@@ -192,7 +212,7 @@ export function AIAdvisory() {
             <p className="text-sm text-muted-foreground">Advanced machine learning insights</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4 text-center">
             <MessageSquare className="h-8 w-8 text-primary mx-auto mb-2" />
