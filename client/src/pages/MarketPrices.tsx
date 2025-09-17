@@ -2,112 +2,142 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrendingUp, TrendingDown, Search, MapPin, Calendar, DollarSign } from "lucide-react";
-import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrendingUp, TrendingDown, Search, MapPin, Calendar, DollarSign, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+
+// YOUR UNIQUE API KEY
+// ⚠️ If you continue to get a 403 error after running this code, the issue is with the key itself.
+const API_KEY = "579b464db66ec23bdd000001c30cc908c9f54b5574ecb19441e2b59f";
+const API_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070";
 
 export function MarketPrices() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [prices, setPrices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const [states, setStates] = useState([]);
+  const [selectedState, setSelectedState] = useState("");
+  const [districts, setDistricts] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  
+  // This useEffect fetches all states by using a high limit
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const url = new URL(API_URL);
+        url.searchParams.append("api-key", API_KEY);
+        url.searchParams.append("format", "json");
+        url.searchParams.append("group_by", "state");
+        url.searchParams.append("limit", "10000"); // This is key to getting all states
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const stateList = data.records.map(record => record.state);
+        setStates(stateList);
 
-  const priceData = [
-    {
-      crop: "Rice",
-      variety: "Basmati 1121",
-      currentPrice: 4500,
-      previousPrice: 4200,
-      unit: "quintal",
-      market: "Delhi Mandi",
-      lastUpdated: "2 hours ago",
-      trend: "up"
-    },
-    {
-      crop: "Wheat",
-      variety: "HD-2967",
-      currentPrice: 2800,
-      previousPrice: 2850,
-      unit: "quintal",
-      market: "Punjab Mandi",
-      lastUpdated: "1 hour ago",
-      trend: "down"
-    },
-    {
-      crop: "Tomato",
-      variety: "Hybrid",
-      currentPrice: 3200,
-      previousPrice: 2800,
-      unit: "quintal",
-      market: "Maharashtra Mandi",
-      lastUpdated: "30 min ago",
-      trend: "up"
-    },
-    {
-      crop: "Onion",
-      variety: "Red Onion",
-      currentPrice: 1800,
-      previousPrice: 1900,
-      unit: "quintal",
-      market: "Karnataka Mandi",
-      lastUpdated: "45 min ago",
-      trend: "down"
-    },
-    {
-      crop: "Cotton",
-      variety: "Shankar-6",
-      currentPrice: 6800,
-      previousPrice: 6500,
-      unit: "quintal",
-      market: "Gujarat Mandi",
-      lastUpdated: "1 hour ago",
-      trend: "up"
-    },
-    {
-      crop: "Sugarcane",
-      variety: "Co-238",
-      currentPrice: 380,
-      previousPrice: 375,
-      unit: "quintal",
-      market: "Uttar Pradesh",
-      lastUpdated: "3 hours ago",
-      trend: "up"
+      } catch (err) {
+        console.error("Error fetching states:", err);
+      }
+    };
+    fetchStates();
+  }, [API_KEY]);
+
+  // This useEffect fetches districts based on the selected state
+  useEffect(() => {
+    if (selectedState) {
+      const fetchDistricts = async () => {
+        try {
+          const url = new URL(API_URL);
+          url.searchParams.append("api-key", API_KEY);
+          url.searchParams.append("format", "json");
+          url.searchParams.append("group_by", "district");
+          url.searchParams.append("filters[state.keyword]", selectedState);
+          url.searchParams.append("limit", "10000"); // This is key to getting all districts
+          
+          const response = await fetch(url);
+          const data = await response.json();
+          const districtList = data.records.map(record => record.district);
+          setDistricts(districtList);
+        } catch (err) {
+          console.error("Error fetching districts:", err);
+        }
+      };
+      fetchDistricts();
     }
-  ];
+  }, [selectedState, API_KEY]);
 
-  const marketTrends = [
-    {
-      category: "Cereals",
-      trend: "up",
-      change: "+5.2%",
-      description: "Steady demand with favorable weather conditions"
-    },
-    {
-      category: "Vegetables",
-      trend: "mixed",
-      change: "±2.1%",
-      description: "Seasonal variations affecting different crops"
-    },
-    {
-      category: "Cash Crops",
-      trend: "up",
-      change: "+3.8%",
-      description: "Export demand driving price increases"
-    },
-    {
-      category: "Pulses",
-      trend: "down",
-      change: "-1.5%",
-      description: "Good monsoon leading to increased supply"
-    }
-  ];
+  // Main useEffect to fetch prices with all filters
+  useEffect(() => {
+    const fetchPrices = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const url = new URL(API_URL);
+        url.searchParams.append("api-key", API_KEY);
+        url.searchParams.append("format", "json");
+        url.searchParams.append("limit", "50");
+        
+        if (searchTerm) {
+          url.searchParams.append("filters[commodity]", searchTerm);
+        }
+        if (selectedState) {
+          url.searchParams.append("filters[state.keyword]", selectedState);
+        }
+        if (selectedDistrict) {
+          url.searchParams.append("filters[district]", selectedDistrict);
+        }
 
-  const filteredPrices = priceData.filter(item =>
-    item.crop.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.variety.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Failed to fetch data from API");
+        }
+
+        const data = await response.json();
+        
+        const formattedPrices = data.records.map(record => ({
+          crop: record.commodity,
+          variety: record.variety || "N/A",
+          currentPrice: record.modal_price ? parseInt(record.modal_price) : 0,
+          previousPrice: record.min_price ? parseInt(record.min_price) : 0,
+          unit: "quintal",
+          market: record.market || "N/A",
+          lastUpdated: new Date(record.arrival_date).toLocaleDateString(),
+          trend: (record.modal_price > record.min_price) ? "up" : "down"
+        }));
+
+        setPrices(formattedPrices);
+
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Could not fetch market data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const delayDebounceFn = setTimeout(() => {
+      fetchPrices();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, selectedState, selectedDistrict, API_KEY]);
 
   const calculateChange = (current: number, previous: number) => {
     const change = current - previous;
     const percentage = ((change / previous) * 100).toFixed(1);
     return { change, percentage };
   };
+
+  const marketTrends = [
+    { category: "Cereals", trend: "up", change: "+5.2%", description: "Steady demand with favorable weather conditions" },
+    { category: "Vegetables", trend: "mixed", change: "±2.1%", description: "Seasonal variations affecting different crops" },
+    { category: "Cash Crops", trend: "up", change: "+3.8%", description: "Export demand driving price increases" },
+    { category: "Pulses", trend: "down", change: "-1.5%", description: "Good monsoon leading to increased supply" }
+  ];
 
   return (
     <div className="space-y-6">
@@ -123,11 +153,10 @@ export function MarketPrices() {
         </CardHeader>
       </Card>
 
-      {/* Search and Filters */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+            <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search crops or varieties..."
@@ -136,21 +165,33 @@ export function MarketPrices() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <MapPin className="h-4 w-4 mr-2" />
-                Location
-              </Button>
-              <Button variant="outline" size="sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                Date Range
-              </Button>
+            
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Select onValueChange={(value) => setSelectedState(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((state, index) => (
+                    <SelectItem key={index} value={state}>{state}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select onValueChange={(value) => setSelectedDistrict(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select District" />
+                </SelectTrigger>
+                <SelectContent>
+                  {districts.map((district, index) => (
+                    <SelectItem key={index} value={district}>{district}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Market Trends Overview */}
       <Card>
         <CardHeader>
           <CardTitle>Market Trends Overview</CardTitle>
@@ -183,15 +224,33 @@ export function MarketPrices() {
         </CardContent>
       </Card>
 
-      {/* Price Table */}
       <Card>
         <CardHeader>
           <CardTitle>Current Market Prices</CardTitle>
           <CardDescription>Latest prices from major agricultural markets</CardDescription>
         </CardHeader>
         <CardContent>
+          {loading && (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-lg">Loading prices...</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="text-center text-destructive p-4 border rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {!loading && prices.length === 0 && !error && (
+            <div className="text-center text-muted-foreground p-4">
+              No prices found. Try a different search or location.
+            </div>
+          )}
+
           <div className="space-y-4">
-            {filteredPrices.map((item, index) => {
+            {prices.map((item, index) => {
               const { change, percentage } = calculateChange(item.currentPrice, item.previousPrice);
               return (
                 <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
@@ -236,7 +295,6 @@ export function MarketPrices() {
         </CardContent>
       </Card>
 
-      {/* Price Alerts */}
       <Card>
         <CardHeader>
           <CardTitle>Price Alerts</CardTitle>
@@ -273,7 +331,6 @@ export function MarketPrices() {
         </CardContent>
       </Card>
 
-      {/* Market Analysis */}
       <Card>
         <CardHeader>
           <CardTitle>Market Analysis</CardTitle>
