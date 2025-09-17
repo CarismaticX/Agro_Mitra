@@ -1,49 +1,52 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Camera, CloudSun, TrendingUp, Leaf, Users, AlertTriangle, CheckCircle } from "lucide-react";
+import { MessageSquare, Camera, CloudSun, TrendingUp, Leaf, Users, Landmark, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-farmer.jpg";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardProps {
   onPageChange: (page: string) => void;
 }
 
 export function Dashboard({ onPageChange }: DashboardProps) {
+  const navigate = useNavigate();
+
   const services = [
     {
-      id: 'advisory',
-      title: 'AI Crop Advisory',
-      description: 'Get personalized farming advice using AI',
+      id: "advisory",
+      title: "AI Crop Advisory",
+      description: "Get personalized farming advice using AI",
       icon: MessageSquare,
-      color: 'bg-primary',
+      color: "bg-primary",
     },
     {
-      id: 'pest-detection',
-      title: 'Pest & Disease Detection',
-      description: 'Upload crop images for instant diagnosis',
+      id: "pest-detection",
+      title: "Pest & Disease Detection",
+      description: "Upload crop images for instant diagnosis",
       icon: Camera,
-      color: 'bg-warning',
+      color: "bg-warning",
     },
     {
-      id: 'weather',
-      title: 'Weather Alerts',
-      description: 'Stay updated with weather forecasts',
+      id: "weather",
+      title: "Weather Alerts",
+      description: "Stay updated with weather forecasts",
       icon: CloudSun,
-      color: 'bg-blue-500',
+      color: "bg-blue-500",
     },
     {
-      id: 'market',
-      title: 'Market Prices',
-      description: 'Check latest crop prices and trends',
+      id: "market",
+      title: "Market Prices",
+      description: "Check latest crop prices and trends",
       icon: TrendingUp,
-      color: 'bg-success',
+      color: "bg-success",
     },
   ];
 
   const stats = [
-    { label: 'Farmers Helped', value: '10,000+', icon: Users },
-    { label: 'Crops Monitored', value: '50+', icon: Leaf },
-    { label: 'Issues Resolved', value: '5,000+', icon: CheckCircle },
-    { label: 'Alerts Sent', value: '15,000+', icon: AlertTriangle },
+    { label: "Farmers Helped", value: "10,000+", icon: Users },
+    { label: "Crops Monitored", value: "50+", icon: Leaf },
+    { label: "Issues Resolved", value: "5,000+", icon: CheckCircle },
+    { label: "Alerts Sent", value: "15,000+", icon: Landmark },
   ];
 
   return (
@@ -51,9 +54,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
       {/* Hero Section */}
       <Card className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src={heroImage} 
-            alt="Modern farmer in agricultural field" 
+          <img
+            src={heroImage}
+            alt="Modern farmer in agricultural field"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
@@ -64,13 +67,13 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               <span className="text-primary block">Made Simple</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              AI-powered agricultural advisory system to help farmers make informed decisions, 
+              AI-powered agricultural advisory system to help farmers make informed decisions,
               detect crop issues early, and maximize yields.
             </p>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="h-12 px-8"
-              onClick={() => onPageChange('advisory')}
+              onClick={() => onPageChange("advisory")}
             >
               Start Advisory Chat
             </Button>
@@ -83,13 +86,15 @@ export function Dashboard({ onPageChange }: DashboardProps) {
         {services.map((service) => {
           const Icon = service.icon;
           return (
-            <Card 
-              key={service.id} 
+            <Card
+              key={service.id}
               className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
               onClick={() => onPageChange(service.id)}
             >
               <CardHeader className="pb-3">
-                <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-3`}>
+                <div
+                  className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-3`}
+                >
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle className="text-lg">{service.title}</CardTitle>
@@ -137,14 +142,20 @@ export function Dashboard({ onPageChange }: DashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4">
+            <Button
+              variant="outline"
+              className="h-16 flex-col gap-2"
+              onClick={() => navigate("schemes")}
+            >
+              <Landmark className="h-5 w-5" />
+              Govt. Scheme Alert
+            </Button>
+
             <Button variant="outline" className="h-16 flex-col gap-2">
               <Leaf className="h-5 w-5" />
               Crop Calendar
             </Button>
-            <Button variant="outline" className="h-16 flex-col gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Emergency Help
-            </Button>
+
             <Button variant="outline" className="h-16 flex-col gap-2">
               <Users className="h-5 w-5" />
               Farmer Network
