@@ -124,3 +124,134 @@
     @apply bg-background text-foreground;
   }
 }
+/* --- Google Translate Widget Overrides --- */
+
+/* Hide Google branding */
+.goog-logo-link {
+  display: none !important;
+}
+.goog-te-gadget {
+  font-size: 0 !important; /* hides "Select Language" text */
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Style the dropdown to match theme */
+.goog-te-combo {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.875rem; /* text-sm */
+  color: hsl(var(--foreground));
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover + focus styles */
+.goog-te-combo:hover,
+.goog-te-combo:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+/* Force Google Translate widget styling */
+#google_translate_element .goog-te-gadget {
+  font-size: 0 !important;
+}
+
+#google_translate_element .goog-te-gadget .goog-te-combo {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border: none !important;
+  border-radius: var(--radius) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+#google_translate_element .goog-te-gadget .goog-te-combo:hover {
+  background-color: hsl(var(--primary-glow)) !important;
+}
+/* Google Translate Custom Styling */
+#google_translate_element select.goog-te-combo {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 2.5rem 0.5rem 1rem; /* extra space for custom arrow */
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.2s ease-in-out;
+  appearance: none; /* hide default arrow */
+}
+
+/* Hover effect */
+#google_translate_element select.goog-te-combo:hover {
+  background: linear-gradient(135deg, hsl(var(--primary-glow)), hsl(var(--primary)));
+  box-shadow: var(--shadow-glow);
+}
+
+/* Custom dropdown arrow */
+#google_translate_element::after {
+  content: "▼";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: hsl(var(--primary-foreground));
+  pointer-events: none;
+}
+/* Base styling for Google Translate select */
+#google_translate_element select.goog-te-combo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: none;
+  background: transparent;
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  padding: 0;
+  box-shadow: none;
+  appearance: none; /* remove browser styling */
+}
+
+/* Make each option look like a pill button */
+#google_translate_element select.goog-te-combo option {
+  background: white;
+  border: 1px solid hsl(var(--border));
+  border-radius: 9999px; /* pill shape */
+  padding: 0.5rem 1rem;
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Active/selected language */
+#google_translate_element select.goog-te-combo option:checked {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+/* Hover effect */
+#google_translate_element select.goog-te-combo option:hover {
+  background: hsl(var(--muted));
+}
+/* Hide the Google Translate top banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+/* Prevent body from shifting down */
+body {
+  top: 0px !important;
+}

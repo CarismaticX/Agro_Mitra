@@ -1,6 +1,16 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Camera, CloudSun, TrendingUp, Leaf, Users, Landmark, CheckCircle } from "lucide-react";
+import {
+  MessageSquare,
+  Camera,
+  CloudSun,
+  TrendingUp,
+  Leaf,
+  Users,
+  Landmark,
+  CheckCircle,
+} from "lucide-react";
 import heroImage from "@/assets/hero-farmer.jpg";
 import { useNavigate } from "react-router-dom";
 
@@ -12,34 +22,10 @@ export function Dashboard({ onPageChange }: DashboardProps) {
   const navigate = useNavigate();
 
   const services = [
-    {
-      id: "advisory",
-      title: "AI Crop Advisory",
-      description: "Get personalized farming advice using AI",
-      icon: MessageSquare,
-      color: "bg-primary",
-    },
-    {
-      id: "pest-detection",
-      title: "Pest & Disease Detection",
-      description: "Upload crop images for instant diagnosis",
-      icon: Camera,
-      color: "bg-warning",
-    },
-    {
-      id: "weather",
-      title: "Weather Alerts",
-      description: "Stay updated with weather forecasts",
-      icon: CloudSun,
-      color: "bg-blue-500",
-    },
-    {
-      id: "market",
-      title: "Market Prices",
-      description: "Check latest crop prices and trends",
-      icon: TrendingUp,
-      color: "bg-success",
-    },
+    { id: "advisory", title: "AI Crop Advisory", description: "Get personalized farming advice using AI", icon: MessageSquare, color: "bg-primary" },
+    { id: "pest-detection", title: "Pest & Disease Detection", description: "Upload crop images for instant diagnosis", icon: Camera, color: "bg-warning" },
+    { id: "weather", title: "Weather Alerts", description: "Stay updated with weather forecasts", icon: CloudSun, color: "bg-blue-500" },
+    { id: "market", title: "Market Prices", description: "Check latest crop prices and trends", icon: TrendingUp, color: "bg-success" },
   ];
 
   const stats = [
@@ -49,8 +35,49 @@ export function Dashboard({ onPageChange }: DashboardProps) {
     { label: "Alerts Sent", value: "15,000+", icon: Landmark },
   ];
 
+  // Initialize Google Translate after div renders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const el = document.getElementById("google_translate_element");
+      if (el && (window as any).google && (window as any).google.translate) {
+        new (window as any).google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            includedLanguages: "hi,mr,ta,te,bn,de",
+            layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Optional: Style the dropdown
+  useEffect(() => {
+    const styleInterval = setInterval(() => {
+      const selectEl = document.querySelector(".goog-te-combo") as HTMLSelectElement;
+      if (selectEl) {
+        selectEl.style.padding = "0.5rem 1rem";
+        selectEl.style.borderRadius = "0.5rem";
+        selectEl.style.border = "none";
+        selectEl.style.fontWeight = "600";
+        selectEl.style.cursor = "pointer";
+        selectEl.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+        clearInterval(styleInterval);
+      }
+    }, 500);
+  }, []);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4 md:p-8">
+      {/* Language Switcher */}
+      <div className="absolute top-4 right-4">
+        <div id="google_translate_element"></div>
+      </div>
+
       {/* Hero Section */}
       <Card className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -67,14 +94,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               <span className="text-primary block">Made Simple</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              AI-powered agricultural advisory system to help farmers make informed decisions,
-              detect crop issues early, and maximize yields.
+              AI-powered agricultural advisory system to help farmers make informed decisions, detect crop issues early, and maximize yields.
             </p>
-            <Button
-              size="lg"
-              className="h-12 px-8"
-              onClick={() => onPageChange("advisory")}
-            >
+            <Button size="lg" className="h-12 px-8" onClick={() => onPageChange("advisory")}>
               Start Advisory Chat
             </Button>
           </div>
@@ -83,7 +105,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
 
       {/* Services Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {services.map((service) => {
+        {services.map(service => {
           const Icon = service.icon;
           return (
             <Card
@@ -92,9 +114,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               onClick={() => onPageChange(service.id)}
             >
               <CardHeader className="pb-3">
-                <div
-                  className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-3`}
-                >
+                <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-3`}>
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle className="text-lg">{service.title}</CardTitle>
@@ -118,7 +138,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat) => {
+            {stats.map(stat => {
               const Icon = stat.icon;
               return (
                 <div key={stat.label} className="text-center">
@@ -142,20 +162,14 @@ export function Dashboard({ onPageChange }: DashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-3 gap-4">
-            <Button
-              variant="outline"
-              className="h-16 flex-col gap-2"
-              onClick={() => navigate("schemes")}
-            >
+            <Button variant="outline" className="h-16 flex-col gap-2" onClick={() => navigate("schemes")}>
               <Landmark className="h-5 w-5" />
               Govt. Scheme Alert
             </Button>
-
             <Button variant="outline" className="h-16 flex-col gap-2">
               <Leaf className="h-5 w-5" />
               Crop Calendar
             </Button>
-
             <Button variant="outline" className="h-16 flex-col gap-2">
               <Users className="h-5 w-5" />
               Farmer Network
