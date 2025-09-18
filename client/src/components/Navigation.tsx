@@ -24,7 +24,7 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
       {/* Mobile Navigation */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold text-primary">Farm Advisory</h1>
+          <h1 className="text-xl font-bold text-primary">Krishi Ratna</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -61,7 +61,7 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
 
       {/* Desktop Navigation */}
       <Card className="hidden md:block fixed left-4 top-4 bottom-4 w-64 p-6 z-40">
-        <h1 className="text-2xl font-bold text-primary mb-8">Farm Advisory</h1>
+        <h1 className="text-2xl font-bold text-primary mb-8">Krishi Ratna</h1>
         
         <nav className="space-y-2">
           {navItems.map((item) => {
