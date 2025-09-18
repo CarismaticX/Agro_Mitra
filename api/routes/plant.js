@@ -10,10 +10,11 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: "Image is required" });
   }
 
+  // remove base64 header if present
   base64Image = base64Image.replace(/^data:image\/\w+;base64,/, "");
 
   try {
-    const response = await fetch("https://plant.id/api/v3/identify", {
+    const response = await fetch("https://plant.id/api/v3/identification", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,35 +26,62 @@ router.post("/", async (req, res) => {
       }),
     });
 
+    const rawBody = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      data = null;
+    }
+
     if (!response.ok) {
       // If the response is not OK, try to parse JSON, but fall back to text
+      let errorData;
       try {
-        const errorData = await response.json();
-        console.error(`Plant.id API Error: HTTP Status ${response.status}`, errorData);
-        return res.status(response.status).json({ error: errorData.error || "Failed to analyze image. Please try again later." });
+        errorData = JSON.parse(rawBody);
+        console.error(
+          `Plant.id API Error: HTTP Status ${response.status}`,
+          errorData
+        );
+        return res
+          .status(response.status)
+          .json({
+            error:
+              errorData.error ||
+              "Failed to analyze image. Please try again later.",
+          });
       } catch (jsonError) {
-        const errorText = await response.text();
-        console.error(`Plant.id API Error: HTTP Status ${response.status}`, `Non-JSON response: ${errorText}`);
-        return res.status(response.status).json({ error: `API returned a non-JSON error: ${errorText}` });
+        console.error(
+          `Plant.id API Error: HTTP Status ${response.status}, Non-JSON response: ${rawBody}`
+        );
+        return res
+          .status(response.status)
+          .json({ error: `API returned a non-JSON error: ${rawBody}` });
       }
     }
 
-    const data = await response.json();
-    
     // Check if the API request was rejected for other reasons
-    if (data.error) {
+    if (data?.error) {
       console.error("Plant.id API Error:", data.error);
       return res.status(400).json({ error: data.error });
     }
 
-    if (!data.result?.is_plant?.binary) {
-      return res.json({ result: null, message: "No plant detected in the image. Please upload a clear photo of a plant." });
+    if (!data?.result?.is_plant?.binary) {
+      return res.json({
+        result: null,
+        message:
+          "No plant detected in the image. Please upload a clear photo of a plant.",
+      });
     }
 
     const disease = data.result.disease?.suggestions?.[0];
 
     if (!disease) {
-      return res.json({ result: null, message: "No diseases or pests were detected. Your plant appears to be healthy!" });
+      return res.json({
+        result: null,
+        message:
+          "No diseases or pests were detected. Your plant appears to be healthy!",
+      });
     }
 
     const result = {
@@ -76,7 +104,11 @@ router.post("/", async (req, res) => {
     res.json({ result, message: "Pest or disease detected." });
   } catch (err) {
     console.error("Server-side error:", err);
-    res.status(500).json({ error: "An internal server error occurred. Please try again later." });
+    res
+      .status(500)
+      .json({
+        error: "An internal server error occurred. Please try again later.",
+      });
   }
 });
 

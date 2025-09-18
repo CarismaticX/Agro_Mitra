@@ -1,12 +1,27 @@
 // src/components/PestDetection.jsx
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Upload, AlertTriangle, CheckCircle, Leaf, Eye, Search, XCircle } from "lucide-react";
-import { Progress } from "@/components/ui/progress"; // Assuming you have this component
-import { cropData } from "@/data"; // Import the data file
+import {
+  Camera,
+  Upload,
+  AlertTriangle,
+  CheckCircle,
+  Leaf,
+  Eye,
+  Search,
+  XCircle,
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { cropData } from "@/data";
 
 export function PestDetection() {
   // AI Detection State
@@ -18,9 +33,10 @@ export function PestDetection() {
 
   // Browse Feature State
   const [selectedCrop, setSelectedCrop] = useState("Wheat");
-  const [activeTab, setActiveTab] = useState("Pests"); // 'Pests' or 'Diseases'
-  const [selectedItem, setSelectedItem] = useState(null); // Holds the detailed info of a selected pest/disease
+  const [activeTab, setActiveTab] = useState("Pests"); // "Pests" | "Diseases"
+  const [selectedItem, setSelectedItem] = useState(null);
 
+  // Handle Image Upload
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -28,13 +44,14 @@ export function PestDetection() {
       reader.onload = (e) => {
         setSelectedImage(e.target?.result);
         setResults(null);
-        setSelectedItem(null); // Clear detailed view when a new image is uploaded
-        setMessage(""); // Clear any previous messages
+        setSelectedItem(null);
+        setMessage("");
       };
       reader.readAsDataURL(file);
     }
   };
 
+  // Analyze Image
   const analyzeImage = async () => {
     if (!selectedImage) return;
 
@@ -67,20 +84,21 @@ export function PestDetection() {
     }
   };
 
+  // Badge Variants
   const severityBadgeVariant = (severity) => {
     switch (severity) {
-      case 'High':
-        return 'destructive';
-      case 'Moderate':
-        return 'warning';
+      case "High":
+        return "destructive";
+      case "Moderate":
+        return "warning";
       default:
-        return 'secondary';
+        return "secondary";
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Existing AI Detection Section */}
+      {/* AI Detection Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -98,7 +116,8 @@ export function PestDetection() {
                 <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Upload Crop Image</h3>
                 <p className="text-muted-foreground mb-4">
-                  Take a clear photo of affected leaves or crops for accurate detection
+                  Take a clear photo of affected leaves or crops for accurate
+                  detection
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button
@@ -156,18 +175,21 @@ export function PestDetection() {
         </CardContent>
       </Card>
 
-      {/* Analysis Status/Results Section */}
+      {/* Analysis Status */}
       {isAnalyzing && (
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
               <Progress value={50} className="w-full" />
-              <p className="text-sm text-muted-foreground mt-2">Analysis in progress...</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Analysis in progress...
+              </p>
             </div>
           </CardContent>
         </Card>
       )}
 
+      {/* Analysis Message */}
       {message && !isAnalyzing && (
         <Card>
           <CardContent className="p-4">
@@ -183,6 +205,7 @@ export function PestDetection() {
         </Card>
       )}
 
+      {/* Results */}
       {results && !isAnalyzing && (
         <Card>
           <CardHeader>
@@ -194,7 +217,9 @@ export function PestDetection() {
           <CardContent className="space-y-6">
             <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-muted rounded-lg">
               <div className="text-center sm:text-left">
-                <h3 className="text-xl font-bold text-destructive">{results.pest}</h3>
+                <h3 className="text-xl font-bold text-destructive">
+                  {results.pest}
+                </h3>
                 <p className="text-muted-foreground">{results.description}</p>
               </div>
               <div className="text-right mt-3 sm:mt-0">
@@ -210,12 +235,15 @@ export function PestDetection() {
                 Immediate Treatment
               </h4>
               <div className="grid gap-2">
-                {results.treatment.map((treatment, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-card rounded-lg border">
+                {results.treatment.map((t, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-3 bg-card rounded-lg border"
+                  >
                     <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
-                      {index + 1}
+                      {i + 1}
                     </div>
-                    <p className="text-sm">{treatment}</p>
+                    <p className="text-sm">{t}</p>
                   </div>
                 ))}
               </div>
@@ -226,8 +254,11 @@ export function PestDetection() {
                 Prevention Tips
               </h4>
               <div className="grid gap-2">
-                {results.prevention.map((tip, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                {results.prevention.map((tip, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-3 bg-muted rounded-lg"
+                  >
                     <CheckCircle className="h-5 w-5 text-success mt-0.5" />
                     <p className="text-sm">{tip}</p>
                   </div>
@@ -238,7 +269,7 @@ export function PestDetection() {
         </Card>
       )}
 
-      {/* NEW BROWSE FEATURE (Manual Library) */}
+      {/* Browse Library */}
       <hr className="my-6" />
       {selectedItem ? (
         <Card>
@@ -252,7 +283,11 @@ export function PestDetection() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Button variant="outline" onClick={() => setSelectedItem(null)} className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedItem(null)}
+              className="w-full sm:w-auto"
+            >
               ← Back to list
             </Button>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
@@ -263,7 +298,9 @@ export function PestDetection() {
               />
               <div className="space-y-2">
                 <h4 className="font-semibold">Stage of Occurrence:</h4>
-                <p className="text-sm text-muted-foreground">{selectedItem.stage}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedItem.stage}
+                </p>
               </div>
             </div>
             <div className="space-y-4">
@@ -273,20 +310,20 @@ export function PestDetection() {
                   Symptoms for Identification
                 </h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  {selectedItem.symptoms.map((symptom, index) => (
-                    <li key={index}>{symptom}</li>
+                  {selectedItem.symptoms.map((s, i) => (
+                    <li key={i}>{s}</li>
                   ))}
                 </ul>
               </div>
-              {selectedItem.preventiveMeasures.length > 0 && (
+              {selectedItem.preventiveMeasures?.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
                     <Leaf className="h-5 w-5 text-success" />
                     Preventive Measures
                   </h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    {selectedItem.preventiveMeasures.map((measure, index) => (
-                      <li key={index}>{measure}</li>
+                    {selectedItem.preventiveMeasures.map((m, i) => (
+                      <li key={i}>{m}</li>
                     ))}
                   </ul>
                 </div>
@@ -297,8 +334,8 @@ export function PestDetection() {
                   Control Measures
                 </h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  {selectedItem.controlMeasures.map((control, index) => (
-                    <li key={index}>{control}</li>
+                  {selectedItem.controlMeasures.map((c, i) => (
+                    <li key={i}>{c}</li>
                   ))}
                 </ul>
               </div>
@@ -329,15 +366,19 @@ export function PestDetection() {
             <div className="flex border-b mt-4">
               <Button
                 variant="ghost"
-                className={`flex-1 rounded-none border-b-2 border-transparent ${activeTab === 'Pests' ? 'border-primary text-primary' : ''}`}
-                onClick={() => setActiveTab('Pests')}
+                className={`flex-1 rounded-none border-b-2 border-transparent ${
+                  activeTab === "Pests" ? "border-primary text-primary" : ""
+                }`}
+                onClick={() => setActiveTab("Pests")}
               >
                 Pests
               </Button>
               <Button
                 variant="ghost"
-                className={`flex-1 rounded-none border-b-2 border-transparent ${activeTab === 'Diseases' ? 'border-primary text-primary' : ''}`}
-                onClick={() => setActiveTab('Diseases')}
+                className={`flex-1 rounded-none border-b-2 border-transparent ${
+                  activeTab === "Diseases" ? "border-primary text-primary" : ""
+                }`}
+                onClick={() => setActiveTab("Diseases")}
               >
                 Diseases
               </Button>
@@ -345,41 +386,55 @@ export function PestDetection() {
           </CardHeader>
           <CardContent className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {activeTab === "Pests" && cropData[selectedCrop].pests.length > 0 ? (
-                cropData[selectedCrop].pests.map((pest, index) => (
+              {activeTab === "Pests" &&
+              cropData[selectedCrop]?.pests?.length > 0 ? (
+                cropData[selectedCrop].pests.map((pest, i) => (
                   <div
-                    key={index}
+                    key={i}
                     onClick={() => setSelectedItem(pest)}
                     className="bg-card border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
                   >
-                    <img src={pest.image} alt={pest.name} className="w-full h-32 object-cover" />
+                    <img
+                      src={pest.image}
+                      alt={pest.name}
+                      className="w-full h-32 object-cover"
+                    />
                     <div className="p-3">
                       <h4 className="font-medium text-center">{pest.name}</h4>
                     </div>
                   </div>
                 ))
-              ) : activeTab === "Diseases" && cropData[selectedCrop].diseases.length > 0 ? (
-                cropData[selectedCrop].diseases.map((disease, index) => (
+              ) : activeTab === "Diseases" &&
+                cropData[selectedCrop]?.diseases?.length > 0 ? (
+                cropData[selectedCrop].diseases.map((disease, i) => (
                   <div
-                    key={index}
+                    key={i}
                     onClick={() => setSelectedItem(disease)}
                     className="bg-card border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
                   >
-                    <img src={disease.image} alt={disease.name} className="w-full h-32 object-cover" />
+                    <img
+                      src={disease.image}
+                      alt={disease.name}
+                      className="w-full h-32 object-cover"
+                    />
                     <div className="p-3">
-                      <h4 className="font-medium text-center">{disease.name}</h4>
+                      <h4 className="font-medium text-center">
+                        {disease.name}
+                      </h4>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="col-span-4 text-center text-muted-foreground">No {activeTab.toLowerCase()} found for this crop yet.</p>
+                <p className="col-span-4 text-center text-muted-foreground">
+                  No {activeTab.toLowerCase()} found for this crop yet.
+                </p>
               )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Photography Tips Card */}
+      {/* Photography Tips */}
       <hr className="my-6" />
       <Card>
         <CardHeader>

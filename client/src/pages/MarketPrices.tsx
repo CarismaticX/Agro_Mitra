@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 // YOUR UNIQUE API KEY
 // ⚠️ If you continue to get a 403 error after running this code, the issue is with the key itself.
-const API_KEY = "579b464db66ec23bdd000001c30cc908c9f54b5574ecb19441e2b59f";
+const API_KEY = "579b464db66ec23bdd000001f9ab6ff06b384ae079119a700e4227b0";
 const API_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070";
 
 export function MarketPrices() {
