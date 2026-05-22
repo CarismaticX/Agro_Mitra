@@ -60,7 +60,7 @@ export function PestDetection() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/ai/plant", {
+      const res = await fetch("https://agro-mitra-backend.onrender.com/api/ai/plant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ base64Image: selectedImage }),

@@ -36,7 +36,7 @@ export function Weather() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:5000/api/weather?city=${city}`
+        `https://agro-mitra-backend.onrender.com/api/weather?city=${city}`
       );
 
       const data = await response.json();

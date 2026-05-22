@@ -262,7 +262,7 @@ export function AIAdvisory() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/ai/advisory",  {
+      const res = await fetch("https://agro-mitra-backend.onrender.com/api/ai/advisory",  {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userMsg.content, language: selectedLang }),
