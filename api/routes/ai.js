@@ -1,36 +1,77 @@
 import express from "express";
+import Groq from "groq-sdk";
+
 const router = express.Router();
 
-// POST /api/ai/gemini
-router.post("/gemini", async (req, res) => {
-  const { prompt } = req.body;
-
-  if (!prompt) {
-    return res.status(400).json({ text: "Prompt is required" });
-  }
-
+router.post("/advisory", async (req, res) => {
   try {
-    // Node 18+ has fetch globally
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      }
-    );
+    const { prompt, language } = req.body;
 
-    const data = await response.json();
+    if (!prompt || prompt.trim() === "") {
+      return res.status(400).json({
+        text: "Prompt is required",
+      });
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(500).json({
+        text: "GROQ API key missing",
+      });
+    }
+
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
+
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+
+      messages: [
+        {
+          role: "system",
+          content: `
+You are an expert agricultural advisor.
+
+Rules:
+- Answer only agriculture related questions
+- Help with crops
+- Fertilizers
+- Irrigation
+- Diseases
+- Weather impacts
+- Soil health
+- Pest control
+- Organic farming
+
+Give practical and concise advice.
+Respond in ${language || "English"}.
+`,
+        },
+
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+
+      temperature: 0.4,
+      max_completion_tokens: 500,
+    });
+
     const text =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "⚠️ Could not generate response.";
+      completion?.choices?.[0]?.message?.content ||
+      "⚠️ No response generated";
 
-    res.json({ text });
-  } catch (err) {
-    console.error("Gemini Error:", err);
-    res.json({ text: "⚠️ Could not generate response." });
+    res.status(200).json({
+      text,
+    });
+
+  } catch (error) {
+    console.error("Groq error:", error);
+
+    res.status(500).json({
+      text: "⚠️ AI service unavailable",
+    });
   }
 });
 
